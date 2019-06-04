@@ -16,4 +16,5 @@
 !Doxyfile
 
 # Directories
+docs/html/
 .vscode/
