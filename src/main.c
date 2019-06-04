@@ -52,7 +52,7 @@ int main(int argc, char **argv)
  *
  * @section hierarchy Repository Hierarchy
  *
- * - `doc/` contains documentation describing this project
+ * - `docs/` contains documentation describing this project
  *   - `specs/` contains specification written in Markdown describing designing
  *     details (e.g. the way to map one kind of database to a file system
  *     hierarchy)
