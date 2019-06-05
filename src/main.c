@@ -48,13 +48,9 @@ int main(int argc, char **argv)
  *   operations, and pass contents between the file system driver mentioned
  *   above and the database management systems.
  *
- * They don't have clear boundaries in the code.
+ * They don't have clear boundaries in the code; only for reference.
  *
  * @section hierarchy Repository Hierarchy
  *
- * - `docs/` contains documentation describing this project
- *   - `specs/` contains specification written in Markdown describing designing
- *     details (e.g. the way to map one kind of database to a file system
- *     hierarchy)
  * - `src/` contains source code of this project
  */
