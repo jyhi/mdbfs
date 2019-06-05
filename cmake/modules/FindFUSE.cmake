@@ -45,7 +45,6 @@ endif()
 find_path(
     FUSE_INCLUDE_DIR
     "fuse.h"
-    PATHS
     PATH_SUFFIXES ${FUSE_NAME}
 )
 
