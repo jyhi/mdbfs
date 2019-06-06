@@ -1,3 +1,6 @@
+# Dependencies
+find_package(SQLite3 3.28 REQUIRED)
+
 # Source code to be built
 set(
   SRCS

@@ -1,3 +1,6 @@
+# Dependencies
+find_package(FUSE 3.2 REQUIRED)
+
 # Source code to be built
 set(
   SRCS
@@ -32,6 +35,8 @@ target_link_libraries(mdbfs PRIVATE ${FUSE_LIBRARY})
 
 # API Documentation
 if(BUILD_DOCUMENTATION)
+  find_package(Doxygen)
+
   set(DOXYGEN_JAVADOC_AUTOBRIEF true)
   set(DOXYGEN_QT_AUTOBRIEF true)
   set(DOXYGEN_TAB_SIZE "2")
