@@ -21,7 +21,11 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-# The following variables will be defined for future use:
+# This module defines the following IMPORTED target:
+#
+# - FUSE::FUSE
+#
+# The following variables will also be defined for future use:
 #
 # - FUSE_FOUND: whether FUSE is found
 # - FUSE_INCLUDE_DIR: where fuse.h is placed
@@ -86,6 +90,11 @@ find_package_handle_standard_args(
     REQUIRED_VARS FUSE_INCLUDE_DIR FUSE_LIBRARY
     VERSION_VAR FUSE_VERSION
 )
+
+add_library(FUSE::FUSE SHARED IMPORTED)
+set_property(TARGET FUSE::FUSE PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FUSE_INCLUDE_DIR})
+set_property(TARGET FUSE::FUSE PROPERTY IMPORTED_CONFIGURATIONS ${FUSE_CONFIGURATIONS})
+set_property(TARGET FUSE::FUSE PROPERTY IMPORTED_LOCATION ${FUSE_LIBRARY})
 
 # Unset global variables
 unset(FUSE_COMMON_H)
