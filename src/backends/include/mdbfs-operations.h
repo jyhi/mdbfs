@@ -46,4 +46,17 @@ struct mdbfs_operations {
   int (*readlink) (const char *, char *, size_t);
 };
 
+/**
+ * Register a database backend to the MDBFS driver.
+ *
+ * The `struct mdbfs_operations` contains implementations of file system
+ * operations corresponding to the database that the backend is operating on.
+ * A database backend should implement this function for the use of MDBFS driver
+ * and FUSE.
+ *
+ * @return `struct mdbfs_operations` containing file system operation
+ *         implementations. Upon failure, NULL should be returned.
+ */
+struct mdbfs_operations *mdbfs_register(void);
+
 #endif /* MDBFS_DB_H */
