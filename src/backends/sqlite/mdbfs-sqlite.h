@@ -7,7 +7,7 @@
 #include <db.h>
 
 /**
- * Register this model to the MDBFS driver.
+ * Register this database backend to the MDBFS driver.
  *
  * The `struct mdbfs_operations` contains implementations of file system
  * operations corresponding to the database that the backend is operating on.
