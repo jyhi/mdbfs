@@ -8,8 +8,9 @@ set(
 add_library(mdbfs-sqlite SHARED ${SRCS})
 install(TARGETS mdbfs-sqlite)
 
-# Additional include paths for common headers
-target_include_directories(mdbfs-sqlite PRIVATE ..)
+# Link against utils
+target_include_directories(mdbfs-sqlite PRIVATE mdbfs-utils)
+target_link_libraries(mdbfs-sqlite PRIVATE mdbfs-utils)
 
 # Link against FUSE
 target_compile_definitions(mdbfs-sqlite PRIVATE ${FUSE_DEFINITIONS})

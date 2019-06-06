@@ -1,0 +1,16 @@
+/*
+ * @file mdbfs-config.h
+ *
+ * Global (project-wide) configuration and definition.
+ *
+ * `#define`s are normally to be filled in by the building system.
+ */
+
+#ifndef MDBFS_CONFIG_H
+#define MDBFS_CONFIG_H
+
+#cmakedefine PROJECT_NAME        "@PROJECT_NAME@"
+#cmakedefine PROJECT_DESCRIPTION "@PROJECT_DESCRIPTION@"
+#cmakedefine PROJECT_VERSION     "@PROJECT_VERSION@"
+
+#endif
