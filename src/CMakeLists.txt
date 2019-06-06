@@ -4,11 +4,23 @@ set(
   main.c
 )
 
-# Targets
-add_executable(mdbfs ${SRCS})
+# Sub-targets
+add_subdirectory(backends)
 
-# Targets for installation
-install(TARGETS mdbfs RUNTIME)
+# Main executable target
+add_executable(mdbfs ${SRCS})
+install(TARGETS mdbfs)
+
+# Link against targets
+target_link_libraries(
+  mdbfs
+  PRIVATE mdbfs-sqlite
+)
+
+# Link against FUSE
+target_compile_definitions(mdbfs PRIVATE ${FUSE_DEFINITIONS})
+target_include_directories(mdbfs PRIVATE ${FUSE_INCLUDE_DIR})
+target_link_libraries(mdbfs PRIVATE ${FUSE_LIBRARY})
 
 # API Documentation
 if(BUILD_DOCUMENTATION)
@@ -24,4 +36,4 @@ if(BUILD_DOCUMENTATION)
     docs
     COMMENT "Build API documentation using Doxygen"
   )
-endif(BUILD_DOCUMENTATION)
+endif()

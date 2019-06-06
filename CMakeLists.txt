@@ -5,17 +5,18 @@ project(mdbfs
         HOMEPAGE_URL "https://github.com/lmy441900"
         LANGUAGES C)
 
+# Custom CMake modules for package finding
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
+
 # Project options for customized build
 option(BUILD_DOCUMENTATION "Enable API documetation build using Doxygen" ON)
 
 # Find dependencies
+find_package(FUSE 3.2 REQUIRED)
+
 if(BUILD_DOCUMENTATION)
   find_package(Doxygen)
-
-  if(NOT DOXYGEN_FOUND)
-    message(FATAL_ERROR "Doxygen is required to build API documentation")
-  endif(NOT DOXYGEN_FOUND)
-endif(BUILD_DOCUMENTATION)
+endif()
 
 # Build sub-directories
 add_subdirectory(src)
