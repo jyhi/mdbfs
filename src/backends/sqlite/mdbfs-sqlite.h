@@ -4,7 +4,7 @@
  * Public interface of the MDBFS SQLite database backend.
  */
 
-#include <db.h>
+#include <mdbfs-operations.h>
 
 /**
  * Register this database backend to the MDBFS driver.
