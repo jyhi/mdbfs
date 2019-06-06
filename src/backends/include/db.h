@@ -7,6 +7,10 @@
 #ifndef MDBFS_DB_H
 #define MDBFS_DB_H
 
+#define FUSE_USE_VERSION 32
+
+#include <fuse.h>
+
 /**
  * The file system operations, which basically form a subset of
  * `struct fuse_operations`.
