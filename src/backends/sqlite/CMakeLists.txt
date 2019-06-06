@@ -21,5 +21,5 @@ target_link_libraries(mdbfs-sqlite PRIVATE SQLite::SQLite3)
 
 # Link against FUSE
 target_compile_definitions(mdbfs-sqlite PRIVATE ${FUSE_DEFINITIONS})
-target_include_directories(mdbfs-sqlite PRIVATE ${FUSE_INCLUDE_DIR})
+target_include_directories(mdbfs-sqlite PRIVATE ${FUSE_INCLUDE_DIRS})
 # target_link_libraries(mdbfs-sqlite PRIVATE FUSE::FUSE)

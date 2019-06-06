@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.0)
 # The following variables will also be defined for future use:
 #
 # - FUSE_FOUND: whether FUSE is found
-# - FUSE_INCLUDE_DIR: where fuse.h is placed
+# - FUSE_INCLUDE_DIRS: where fuse.h is placed
 # - FUSE_LIBRARY: path to the found libfuse(|3).so
 # - FUSE_DEFINITIONS: additional preprocessor definitions by FUSE
 # - FUSE_VERSION: full version string of FUSE
@@ -49,7 +49,7 @@ endif()
 
 # Find include path (-I)
 find_path(
-    FUSE_INCLUDE_DIR
+    FUSE_INCLUDE_DIRS
     "fuse.h"
     PATH_SUFFIXES ${FUSE_NAME}
 )
@@ -68,11 +68,11 @@ endif()
 # Extract FUSE version from the C header for comparison
 # Derived from the one in iovisor/bcc-fuse:
 # https://github.com/iovisor/bcc-fuse/blob/master/cmake/Modules/Findfuse.cmake#L98-L101
-if(FUSE_INCLUDE_DIR)
-  if(EXISTS "${FUSE_INCLUDE_DIR}/fuse_common.h")
-    file(READ "${FUSE_INCLUDE_DIR}/fuse_common.h" FUSE_COMMON_H)
-  elseif(EXISTS "${FUSE_INCLUDE_DIR}/fuse/fuse_common.h")
-    file(READ "${FUSE_INCLUDE_DIR}/fuse/fuse_common.h" FUSE_COMMON_H)
+if(FUSE_INCLUDE_DIRS)
+  if(EXISTS "${FUSE_INCLUDE_DIRS}/fuse_common.h")
+    file(READ "${FUSE_INCLUDE_DIRS}/fuse_common.h" FUSE_COMMON_H)
+  elseif(EXISTS "${FUSE_INCLUDE_DIRS}/fuse/fuse_common.h")
+    file(READ "${FUSE_INCLUDE_DIRS}/fuse/fuse_common.h" FUSE_COMMON_H)
   else()
     message(FATAL_MESSAGE "Cannot find fuse_common.h for version checking.")
   endif()
@@ -87,7 +87,7 @@ endif()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     "FUSE"
-    REQUIRED_VARS FUSE_INCLUDE_DIR FUSE_LIBRARY
+    REQUIRED_VARS FUSE_INCLUDE_DIRS FUSE_LIBRARY
     VERSION_VAR FUSE_VERSION
 )
 
@@ -97,7 +97,7 @@ set_target_properties(
   FUSE::FUSE
   PROPERTIES
   IMPORTED_LOCATION "${FUSE_LIBRARY}"
-  INTERFACE_INCLUDE_DIRECTORIES "${FUSE_INCLUDE_DIR}"
+  INTERFACE_INCLUDE_DIRECTORIES "${FUSE_INCLUDE_DIRS}"
   INTERFACE_COMPILE_DEFINITIONS "${FUSE_DEFINITIONS}"
 )
 

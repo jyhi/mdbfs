@@ -30,7 +30,7 @@ target_link_libraries(
 
 # Link against FUSE
 target_compile_definitions(mdbfs PRIVATE ${FUSE_DEFINITIONS})
-target_include_directories(mdbfs PRIVATE ${FUSE_INCLUDE_DIR})
+target_include_directories(mdbfs PRIVATE ${FUSE_INCLUDE_DIRS})
 target_link_libraries(mdbfs PRIVATE FUSE::FUSE)
 
 # API Documentation
