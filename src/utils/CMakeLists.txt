@@ -1,6 +1,7 @@
 # Source code to be built
 set(
   SRCS
+  mdbfs-print.c
   mdbfs-memory.c
 )
 

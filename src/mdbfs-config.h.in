@@ -13,4 +13,8 @@
 #cmakedefine PROJECT_DESCRIPTION "@PROJECT_DESCRIPTION@"
 #cmakedefine PROJECT_VERSION     "@PROJECT_VERSION@"
 
+#ifndef FUSE_USE_VERSION
+#define FUSE_USE_VERSION 32
+#endif
+
 #endif

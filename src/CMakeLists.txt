@@ -16,6 +16,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Sub-targets
 add_subdirectory(utils)
+add_subdirectory(configmgr)
 add_subdirectory(backends)
 
 # Main executable target
@@ -26,6 +27,9 @@ install(TARGETS mdbfs)
 target_link_libraries(
   mdbfs
   PRIVATE mdbfs-sqlite
+  PRIVATE mdbfs-dispatcher
+  PRIVATE mdbfs-configmgr
+  PRIVATE mdbfs-utils
 )
 
 # Link against FUSE
