@@ -86,15 +86,15 @@ int main(int argc, char **argv)
   struct fuse_operations fuse_ops = mdbfs_operations_map_to_fuse_operations(*ops);
 
   /* Free unused memory (1st wave) */
-  mdbfs_free(&ops);
+  mdbfs_free(ops);
 
   /* Nike -- Just Do It. */
   r = fuse_main(args.argc, args.argv, &fuse_ops, NULL);
 
   /* Free unused memory (2nd wave) */
   fuse_opt_free_args(&args);
-  mdbfs_free(&cmdline_options.type);
-  mdbfs_free(&cmdline_options.path);
+  mdbfs_free(cmdline_options.type);
+  mdbfs_free(cmdline_options.path);
 
   return r;
 }

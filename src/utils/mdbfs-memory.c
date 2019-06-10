@@ -29,13 +29,3 @@ void *mdbfs_malloc0(size_t size)
 {
   return memset(mdbfs_malloc(size), 0, size);
 }
-
-void mdbfs_free(void **ptr)
-{
-  assert(ptr != NULL);
-
-  if (*ptr) {
-    free(*ptr);
-    *ptr = NULL;
-  }
-}
