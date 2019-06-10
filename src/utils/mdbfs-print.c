@@ -1,3 +1,9 @@
+/**
+ * @file mdbfs-print.c
+ *
+ * Implementation of MDBFS specific console printing functions.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
