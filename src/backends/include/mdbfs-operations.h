@@ -25,7 +25,6 @@ struct mdbfs_operations {
   /* FS operations */
   void *(*init)    (struct fuse_conn_info *conn, struct fuse_config *cfg);
   void  (*destroy) (void *private_data);
-  int   (*statfs)  (const char *, struct statvfs *);
 
   /* File Object Manipulation */
   int (*create) (const char *, mode_t, struct fuse_file_info *);
