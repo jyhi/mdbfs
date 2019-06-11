@@ -39,8 +39,27 @@ static struct _cmdline_options {
 static const struct fuse_opt cmdline_option_spec[] = {
   CMDLINE_OPTION("--type=%s", type),
   CMDLINE_OPTION("--db=%s", path),
+  CMDLINE_OPTION("--help", show_help),
+  CMDLINE_OPTION("-h", show_help),
   FUSE_OPT_END,
 };
+
+/**
+ * Print MDBFS-specific help message to stdout.
+ */
+void show_help(const char * const progname) {
+  printf(
+    "%s: %s, version %s\n"
+    "\n"
+    "usage: %s [options] <mountpoint>\n"
+    "\n"
+    "    --db=<s>      Path to the database to mount.\n"
+    "                  Depending on the database backend type, this may vary.\n"
+    "    --type=<s>    Specify the type of database (backend).\n"
+    "\n",
+    PROJECT_NAME, PROJECT_DESCRIPTION, PROJECT_VERSION, progname
+  );
+}
 
 /**
  * Main entry of the program.
@@ -59,6 +78,18 @@ int main(int argc, char **argv)
   r = fuse_opt_parse(&args, &cmdline_options, cmdline_option_spec, NULL);
   if (r != 0)
     return 1;
+
+  if (cmdline_options.show_help) {
+    /* From FUSE example/hello.c: first print our own file-system specific help
+       text, then signal fuse_main to show additional help (by adding `--help` to
+       the options again) without usage: line (by setting argv[0] to the empty
+       string) */
+    show_help(argv[0]);
+    fuse_opt_add_arg(&args, "--help");
+    args.argv[0][0] = '\0';
+
+    goto fusemain;
+  }
 
   if (!cmdline_options.path) {
     mdbfs_info("database path is missing; use --db= to specify a database.");
@@ -88,6 +119,7 @@ int main(int argc, char **argv)
   /* Free unused memory (1st wave) */
   mdbfs_free(ops);
 
+fusemain:
   /* Nike -- Just Do It. */
   r = fuse_main(args.argc, args.argv, &fuse_ops, NULL);
 
