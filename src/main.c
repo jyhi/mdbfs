@@ -101,9 +101,6 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  /* Store the path to database for future use */
-  mdbfs_configmgr_path_store(strdup(cmdline_options.path));
-
   /* Get the right backend to use */
   struct mdbfs_operations *ops = mdbfs_backend_get(
     mdbfs_backend_str_to_enum(cmdline_options.type)
@@ -111,6 +108,13 @@ int main(int argc, char **argv)
   if (!ops) {
     mdbfs_error("type \"%s\" does not match any supported database backend.", cmdline_options.type);
     return 1;
+  }
+
+  /* NOTE: we need to load the database before the file system runs... */
+  void *db = ops->load(cmdline_options.path);
+  if (!db) {
+    mdbfs_error("unable to load database");
+    return 2;
   }
 
   /* Transform mdbfs_operations to fuse_operations */
@@ -121,7 +125,7 @@ int main(int argc, char **argv)
 
 fusemain:
   /* Nike -- Just Do It. */
-  r = fuse_main(args.argc, args.argv, &fuse_ops, NULL);
+  r = fuse_main(args.argc, args.argv, &fuse_ops, db);
 
   /* Free unused memory (2nd wave) */
   fuse_opt_free_args(&args);

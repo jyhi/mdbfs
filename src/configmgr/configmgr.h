@@ -13,11 +13,4 @@
 
 #include "configmgr_private.h"
 
-/**
- * Defines a store for variable `path`.
- *
- * This is used to store the database path.
- */
-MDBFS_CONFIGMGR_DEFINE_STORE(path, char *)
-
 #endif

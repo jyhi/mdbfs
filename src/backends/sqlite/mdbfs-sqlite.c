@@ -4,6 +4,7 @@
  * Implementation of the MDBFS SQLite database backend.
  */
 
+#include <assert.h>
 #include <signal.h>
 #include <sqlite3.h>
 #include <mdbfs-operations.h>
@@ -12,25 +13,29 @@
 
 /********** Private APIs **********/
 
-void *init(struct fuse_conn_info *conn, struct fuse_config *cfg)
+static void destroy(void *private_data)
 {
-  char *path = mdbfs_configmgr_path_load();
+  assert(private_data);
+
+  sqlite3 *db = (sqlite3 *)private_data;
+
+  mdbfs_debug("closing database");
+
+  sqlite3_close(db);
+}
+
+static void *load(const char * const path)
+{
   sqlite3 *db = NULL;
 
   int r = sqlite3_open_v2(path, &db, SQLITE_OPEN_READONLY, NULL);
   if (r != SQLITE_OK) {
-    raise(SIGINT);
+    mdbfs_error("unable to open SQLite database at %s: %s", path, sqlite3_errstr(r));
     return NULL;
   }
 
-  return db;
-}
-
-static void destroy(void *private_data)
-{
-  sqlite3 *db = (sqlite3 *)private_data;
-
-  sqlite3_close(db);
+  /* Is this polymorphism? */
+  return (void *)db;
 }
 
 /********** Public APIs **********/
@@ -39,8 +44,8 @@ struct mdbfs_operations *mdbfs_backend_sqlite_register(void)
 {
   struct mdbfs_operations *ret = mdbfs_malloc0(sizeof (struct mdbfs_operations));
 
-  ret->init = init;
   ret->destroy = destroy;
+  ret->load = load;
 
   return ret;
 }

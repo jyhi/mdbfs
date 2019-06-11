@@ -44,6 +44,9 @@ struct mdbfs_operations {
   /* Link */
   int (*symlink)  (const char *, const char *);
   int (*readlink) (const char *, char *, size_t);
+
+  /* Load database */
+  void *(*load) (const char * const path);
 };
 
 /**
