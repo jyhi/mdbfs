@@ -17,7 +17,7 @@
 /**
  * Extract only stop bit.
  */
-#define MDBFS_PRINT_LEVEL_STOP_BIT(s) ((s) & 0x10)
+#define MDBFS_PRINT_LEVEL_STOP_BIT(s) (((s) & 0x10) >> 4)
 
 /* Headers for output. */
 static const char * const debug_header   = "** mdbfs: DEBUG: ";
