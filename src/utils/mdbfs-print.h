@@ -41,9 +41,12 @@ void mdbfs_println(enum MdbfsPrintLevel level, const char * const fmt, ...);
 /**
  * Print a debug message.
  *
+ * By default, this will be a no-op. Setting environment variable MDBFS_DEBUG
+ * will enable it.
+ *
  * @param fmt [in] String format, followed by the content.
  */
-#define mdbfs_debug(fmt, ...) mdbfs_println(MDBFS_PRINT_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
+#define mdbfs_debug(fmt, ...) mdbfs_println(MDBFS_PRINT_LEVEL_DEBUG, "%s (%s:%d): " fmt, __func__, __FILE__, __LINE__, ##__VA_ARGS__)
 
 /**
  * Print an informative message.

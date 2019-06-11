@@ -27,11 +27,17 @@ static const char * const error_header   = "** mdbfs: FAIL: ";
 
 void mdbfs_println(enum MdbfsPrintLevel level, const char * const fmt, ...)
 {
-  va_list args;
-  va_start(args, fmt);
-
   int msg_level = MDBFS_PRINT_LEVEL_MESSAGE_LEVEL(level);
   int stop_bit  = MDBFS_PRINT_LEVEL_STOP_BIT(level);
+
+  if (msg_level == MDBFS_PRINT_LEVEL_DEBUG) {
+    const char *env_debug = getenv("MDBFS_DEBUG");
+    if (!env_debug)
+      return;
+  }
+
+  va_list args;
+  va_start(args, fmt);
 
   switch(msg_level) {
     case MDBFS_PRINT_LEVEL_DEBUG:
