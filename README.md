@@ -9,6 +9,8 @@ This project implements a file system in userspace (FUSE) that takes a database 
 ### Required Dependencies
 
 - **LibFUSE** as facilities to file system in userspace implementation
+- **libstdc++(.6)** that supports C++17 _filesystem library_
+  - and optionally compilers that support C++17
 
 ### Optional Dependencies
 
