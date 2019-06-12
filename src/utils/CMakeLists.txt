@@ -3,6 +3,7 @@ set(
   SRCS
   mdbfs-print.c
   mdbfs-memory.c
+  mdbfs-path.cxx
 )
 
 # Utilities are statically compiled

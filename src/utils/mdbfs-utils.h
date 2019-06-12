@@ -9,5 +9,6 @@
 
 #include "mdbfs-print.h"
 #include "mdbfs-memory.h"
+#include "mdbfs-path.h"
 
 #endif
