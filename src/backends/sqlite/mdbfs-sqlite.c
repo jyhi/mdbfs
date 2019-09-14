@@ -222,22 +222,36 @@ static bool path_exists(const char const *path)
   } else if (table && !row && !column) {
 
     /* Prepare the SQL query
-     * We select all in the table to see if there is any result
+     * We check if the table is in sqlite_master.
      */
-    size_t sql_length = strlen(fmt_sql_select_from) + strlen("*") + strlen(table);
-    char *sql = mdbfs_malloc(sql_length);
-    snprintf(sql, sql_length, fmt_sql_select_from, "*", table);
-
-    mdbfs_debug("To be prepared: %s", sql);
-
-    r = sqlite3_prepare_v2(_db, sql, -1, &stmt, NULL);
+    r = sqlite3_prepare_v2(_db, sql_get_tables, -1, &stmt, NULL);
     if (r != SQLITE_OK) {
       mdbfs_error("path_exists: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
-      retval = false;
+      retval = -ENOENT;
       goto quit_free;
     }
 
-    mdbfs_free(sql);
+    for (;;) {
+      r = sqlite3_step(stmt);
+      if (r != SQLITE_ROW)
+        break;
+
+      const char const *table_name = sqlite3_column_text(stmt, 0);
+      if (!table_name) {
+        mdbfs_warning("path_exists: sqlite3 returned a NULL for table name, this is not expected");
+        continue;
+      }
+
+      if (strcmp(path, table_name) == 0) {
+        mdbfs_debug("%s exists in db", path);
+        retval = true;
+        goto quit_finalize;
+      }
+    }
+
+    /* Anyway. */
+    retval = -ENOENT;
+    goto quit_finalize;
 
   } else if (table && row && !column) {
 
@@ -259,6 +273,24 @@ static bool path_exists(const char const *path)
 
     mdbfs_free(sql);
 
+    /* Execute the SQL query */
+    r = sqlite3_step(stmt);
+    if (r != SQLITE_ROW) {
+      mdbfs_warning("path_exists: sqlite3 execution error: %s", sqlite3_errmsg(_db));
+      retval = false;
+      goto quit_finalize;
+    }
+
+    /* If there is any result, the file exists */
+    retval = true;
+    mdbfs_debug("%s exists in db", path);
+
+    /* Extra check on more results */
+    r = sqlite3_step(stmt);
+    if (r != SQLITE_DONE) {
+      mdbfs_warning("path_exists: more than 1 result for the query, ignoring...");
+    }
+
   } else if (table && row && column) {
 
     /* Prepare the SQL query
@@ -279,26 +311,24 @@ static bool path_exists(const char const *path)
 
     mdbfs_free(sql);
 
-  }
+    /* Execute the SQL query */
+    r = sqlite3_step(stmt);
+    if (r != SQLITE_ROW) {
+      mdbfs_warning("path_exists: sqlite3 execution error: %s", sqlite3_errmsg(_db));
+      retval = false;
+      goto quit_finalize;
+    }
 
-  /* Execute the SQL query */
-  r = sqlite3_step(stmt);
-  if (r != SQLITE_ROW) {
-    mdbfs_warning("path_exists: sqlite3 execution error: %s", sqlite3_errmsg(_db));
-    retval = false;
-    goto quit_finalize;
-  }
+    /* If there is any result, the file exists */
+    retval = true;
+    mdbfs_debug("%s exists in db", path);
 
-  /* If there is any result, we return true */
-  retval = true;
+    /* Extra check on more results */
+    r = sqlite3_step(stmt);
+    if (r != SQLITE_DONE) {
+      mdbfs_warning("path_exists: more than 1 result for the query, ignoring...");
+    }
 
-  /* If there is any result, the file exists */
-  mdbfs_debug("%s exists in db", path);
-
-  /* Extra check on more results */
-  r = sqlite3_step(stmt);
-  if (r != SQLITE_DONE) {
-    mdbfs_warning("path_exists: more than 1 result for the query, ignoring...");
   }
 
 quit_finalize:
