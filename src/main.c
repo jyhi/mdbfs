@@ -47,7 +47,7 @@ static const struct fuse_opt cmdline_option_spec[] = {
 /**
  * Print MDBFS-specific help message to stdout.
  */
-void show_help(const char * const progname) {
+void show_help(const char const *progname) {
   printf(
     "%s: %s, version %s\n"
     "\n"

@@ -49,7 +49,7 @@ struct mdbfs_operations {
   int (*readlink) (const char *, char *, size_t);
 
   /* Load database */
-  void *(*load) (const char * const path);
+  void *(*load) (const char const *path);
 };
 
 /**

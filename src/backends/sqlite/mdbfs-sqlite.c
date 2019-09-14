@@ -323,7 +323,7 @@ quit:
 /**
  * Open and load the database so that the database is ready for use.
  */
-static void *_load(const char * const path)
+static void *_load(const char const *path)
 {
   sqlite3 *db = NULL;
 

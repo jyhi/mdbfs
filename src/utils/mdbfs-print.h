@@ -36,7 +36,7 @@ enum MdbfsPrintLevel {
  *                   what is used in printf family functions.
  * @see mdbfs_debug, mdbfs_info, mdbfs_warning, mdbfs_error, mdbfs_fatal
  */
-void mdbfs_println(enum MdbfsPrintLevel level, const char * const fmt, ...);
+void mdbfs_println(enum MdbfsPrintLevel level, const char const *fmt, ...);
 
 /**
  * Print a debug message.

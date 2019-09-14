@@ -20,7 +20,7 @@ struct mdbfs_operations *mdbfs_backend_get(const enum MdbfsBackend backend)
   }
 }
 
-enum MdbfsBackend mdbfs_backend_str_to_enum(const char * const backend)
+enum MdbfsBackend mdbfs_backend_str_to_enum(const char const *backend)
 {
   enum MdbfsBackend ret = MDBFS_BACKEND_UNKNOWN;
 

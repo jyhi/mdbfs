@@ -20,12 +20,12 @@
 #define MDBFS_PRINT_LEVEL_STOP_BIT(s) (((s) & 0x10) >> 4)
 
 /* Headers for output. */
-static const char * const debug_header   = "** mdbfs: DEBUG: ";
-static const char * const info_header    = "** mdbfs: INFO: ";
-static const char * const warning_header = "** mdbfs: WARN: ";
-static const char * const error_header   = "** mdbfs: FAIL: ";
+static const char const *debug_header   = "** mdbfs: DEBUG: ";
+static const char const *info_header    = "** mdbfs: INFO: ";
+static const char const *warning_header = "** mdbfs: WARN: ";
+static const char const *error_header   = "** mdbfs: FAIL: ";
 
-void mdbfs_println(enum MdbfsPrintLevel level, const char * const fmt, ...)
+void mdbfs_println(enum MdbfsPrintLevel level, const char const *fmt, ...)
 {
   int msg_level = MDBFS_PRINT_LEVEL_MESSAGE_LEVEL(level);
   int stop_bit  = MDBFS_PRINT_LEVEL_STOP_BIT(level);

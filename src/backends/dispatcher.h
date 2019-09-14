@@ -32,7 +32,7 @@ struct mdbfs_operations *mdbfs_backend_get(const enum MdbfsBackend backend);
  * @param backend [in] Name of the backend.
  * @return enum MdbfsBackend indicating the backend.
  */
-enum MdbfsBackend mdbfs_backend_str_to_enum(const char * const backend);
+enum MdbfsBackend mdbfs_backend_str_to_enum(const char const *backend);
 
 /**
  * Convert a struct mdbfs_operations to struct fuse_operations.
