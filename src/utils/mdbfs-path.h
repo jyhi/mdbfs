@@ -1,3 +1,9 @@
+/**
+ * @file mdbfs-path.h
+ *
+ * Public interfaces of path related utilities.
+ */
+
 #ifndef MDBFS_UTILS_PATH_H
 #define MDBFS_UTILS_PATH_H
 

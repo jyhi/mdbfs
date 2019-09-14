@@ -1,5 +1,5 @@
 /**
- * @file memory.c
+ * @file mdbfs-memory.c
  *
  * Implementation of memory related utilities.
  */

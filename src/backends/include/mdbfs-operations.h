@@ -1,5 +1,5 @@
 /**
- * @file db.h
+ * @file mdbfs-operations.h
  *
  * Generic database backend data structures and functions.
  */

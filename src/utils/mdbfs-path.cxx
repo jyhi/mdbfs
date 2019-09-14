@@ -1,3 +1,9 @@
+/**
+ * @file mdbfs-path.h
+ *
+ * Implementation of path related operations.
+ */
+
 #include <cstdlib>
 #include <cstring>
 #include <string>

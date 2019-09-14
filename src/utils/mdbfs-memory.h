@@ -1,5 +1,5 @@
 /**
- * @file memory.h
+ * @file mdbfs-memory.h
  *
  * Public interface of memory related utilities.
  */

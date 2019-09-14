@@ -1,5 +1,5 @@
 /**
- * @file db_sqlite.c
+ * @file mdbfs-sqlite.c
  *
  * Implementation of the MDBFS SQLite database backend.
  */
