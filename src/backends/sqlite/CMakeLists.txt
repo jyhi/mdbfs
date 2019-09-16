@@ -8,8 +8,7 @@ set(
 )
 
 # Targets
-add_library(mdbfs-sqlite SHARED ${SRCS})
-install(TARGETS mdbfs-sqlite)
+add_library(mdbfs-sqlite STATIC ${SRCS})
 
 # Link against utils
 target_include_directories(mdbfs-sqlite PRIVATE mdbfs-utils)
