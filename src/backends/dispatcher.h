@@ -26,8 +26,9 @@ struct mdbfs_operations *mdbfs_backend_get(const char const *backend);
 /**
  * Convert a struct mdbfs_operations to struct fuse_operations.
  *
- * Since struct mdbfs_operations is basically a subset of struct fuse_operations
- * this is done by filling in the structure with holes (NULL) in it.
+ * Since struct mdbfs_operations is mostly a subset of struct fuse_operations
+ * this is done by removing mdbfs-specific functions (e.g. load) and filling in
+ * the structure with holes (NULL) in it.
  *
  * @param mdbfs_ops [in] A struct mdbfs_operations.
  * @return A struct fuse_operations filled by mdbfs_ops.
