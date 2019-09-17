@@ -9,27 +9,31 @@
 #include "sqlite/mdbfs-sqlite.h"
 #include "dispatcher.h"
 
-struct mdbfs_operations *mdbfs_backend_get(const enum MdbfsBackend backend)
+/**
+ * Private structure representing a backend and its relative metadata.
+ */
+struct backend {
+  const char const *name; ///< Name of the backend.
+  struct mdbfs_operations *(*registerer)(void); ///< Registration function of the database.
+};
+
+/**
+ * A list of supported backends.
+ */
+static const struct backend mdbfs_backends[] = {
+  {"sqlite", mdbfs_backend_sqlite_register},
+  {NULL, NULL},
+};
+
+struct mdbfs_operations *mdbfs_backend_get(const char const *backend)
 {
-  switch (backend) {
-    case MDBFS_BACKEND_SQLITE:
-      return mdbfs_backend_sqlite_register();
-    case MDBFS_BACKEND_UNKNOWN: // fall through
-    default:
-      return NULL;
+  struct mdbfs_operations *ret = NULL;
+
+  for (int i = 0; mdbfs_backends[i].name && mdbfs_backends[i].registerer; i++) {
+    if (strcmp(backend, mdbfs_backends[i].name) == 0) {
+      ret = mdbfs_backends[i].registerer();
+    }
   }
-}
-
-enum MdbfsBackend mdbfs_backend_str_to_enum(const char const *backend)
-{
-  enum MdbfsBackend ret = MDBFS_BACKEND_UNKNOWN;
-
-  if (!backend)
-    return ret;
-
-  if (strcmp("sqlite", backend) == 0) {
-    ret = MDBFS_BACKEND_SQLITE;
-  } else {}
 
   return ret;
 }

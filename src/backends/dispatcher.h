@@ -10,29 +10,18 @@
 #include "include/mdbfs-operations.h"
 
 /**
- * Backends supported.
- */
-enum MdbfsBackend {
-  MDBFS_BACKEND_UNKNOWN = 0, /**< Reserved for unknown status. */
-  MDBFS_BACKEND_SQLITE,      /**< SQLite backend. */
-};
-
-/**
  * Given an enum MdbfsBackend, return the struct mdbfs_operations of the
  * requested backend.
  *
- * @param backend [in] An enum MdbfsBackend, specifying the backend to choose.
+ * Possible values of backends may vary depending on the compile-time options.
+ * The following is a list of all supported backends:
+ *
+ * - `sqlite`: SQLite3 backend
+ *
+ * @param backend [in] A string representing the backend to choose.
  * @return A struct mdbfs_operations for the caller to register them in FUSE.
  */
-struct mdbfs_operations *mdbfs_backend_get(const enum MdbfsBackend backend);
-
-/**
- * Convert a string representation to the corresponding backend enumeration.
- *
- * @param backend [in] Name of the backend.
- * @return enum MdbfsBackend indicating the backend.
- */
-enum MdbfsBackend mdbfs_backend_str_to_enum(const char const *backend);
+struct mdbfs_operations *mdbfs_backend_get(const char const *backend);
 
 /**
  * Convert a struct mdbfs_operations to struct fuse_operations.

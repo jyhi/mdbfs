@@ -102,9 +102,7 @@ int main(int argc, char **argv)
   }
 
   /* Get the right backend to use */
-  struct mdbfs_operations *ops = mdbfs_backend_get(
-    mdbfs_backend_str_to_enum(cmdline_options.type)
-  );
+  struct mdbfs_operations *ops = mdbfs_backend_get(cmdline_options.type);
   if (!ops) {
     mdbfs_error("type \"%s\" does not match any supported database backend.", cmdline_options.type);
     return 1;
