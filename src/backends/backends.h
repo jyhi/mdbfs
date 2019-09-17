@@ -4,8 +4,8 @@
  * Private header file containing a list of supported backends.
  */
 
-#ifndef MDBFS_BACKENDS_H
-#define MDBFS_BACKENDS_H
+#ifndef MDBFS_BACKENDS_BACKENDS_H
+#define MDBFS_BACKENDS_BACKENDS_H
 
 #include "sqlite/mdbfs-sqlite.h"
 

@@ -23,8 +23,8 @@
  * SQLite database management system.
  */
 
-#ifndef MDBFS_SQLITE_H
-#define MDBFS_SQLITE_H
+#ifndef MDBFS_BACKEND_SQLITE_H
+#define MDBFS_BACKEND_SQLITE_H
 
 /**
  * Retrieve a bunch of functions that are necessary to map a SQLite database

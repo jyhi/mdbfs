@@ -4,8 +4,8 @@
  * Generic database backend data structures and functions.
  */
 
-#ifndef MDBFS_DB_H
-#define MDBFS_DB_H
+#ifndef MDBFS_OPERATIONS_H
+#define MDBFS_OPERATIONS_H
 
 #define FUSE_USE_VERSION 32
 
@@ -65,4 +65,4 @@ struct mdbfs_operations {
  */
 struct mdbfs_operations *mdbfs_register(void);
 
-#endif /* MDBFS_DB_H */
+#endif /* MDBFS_OPERATIONS_H */

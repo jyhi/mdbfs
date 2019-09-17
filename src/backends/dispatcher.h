@@ -4,8 +4,8 @@
  * Database backend related common interfaces.
  */
 
-#ifndef MDBFS_BACKENDS_H
-#define MDBFS_BACKENDS_H
+#ifndef MDBFS_BACKENDS_DISPATCHER_H
+#define MDBFS_BACKENDS_DISPATCHER_H
 
 #include "include/mdbfs-operations.h"
 
