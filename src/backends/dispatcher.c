@@ -6,24 +6,7 @@
 
 #include <string.h>
 #include "include/mdbfs-operations.h"
-#include "sqlite/mdbfs-sqlite.h"
-#include "dispatcher.h"
-
-/**
- * Private structure representing a backend and its relative metadata.
- */
-struct backend {
-  const char const *name; ///< Name of the backend.
-  struct mdbfs_operations *(*registerer)(void); ///< Registration function of the database.
-};
-
-/**
- * A list of supported backends.
- */
-static const struct backend mdbfs_backends[] = {
-  {"sqlite", mdbfs_backend_sqlite_register},
-  {NULL, NULL},
-};
+#include "backends.h"
 
 struct mdbfs_operations *mdbfs_backend_get(const char const *backend)
 {
