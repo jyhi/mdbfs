@@ -823,6 +823,7 @@ static int _readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
     if (r != SQLITE_OK) {
       mdbfs_error("readdir: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
       retval = -ENOENT;
+      mdbfs_free(sql);
       goto quit_free;
     }
 
@@ -872,8 +873,11 @@ static int _readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
     if (r != SQLITE_OK) {
       mdbfs_error("readdir: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
       retval = -ENOENT;
+      mdbfs_free(sql);
       goto quit_free;
     }
+
+    mdbfs_free(sql);
 
     /* Execute the SQL query
      * The result should be one single row with column contents, but since we
