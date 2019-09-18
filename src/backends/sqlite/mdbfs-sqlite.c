@@ -24,6 +24,9 @@ static const char const *fmt_sql_select_from =
 static const char const *fmt_sql_select_from_where =
   "SELECT %s FROM '%s' WHERE %s = '%s'";
 
+static const char const *fmt_sql_update_set_where =
+  "UPDATE '%s' SET '%s' = '%s' WHERE %s = '%s'";
+
 /********** Private States **********/
 
 /**
@@ -357,7 +360,7 @@ static void *_load(const char const *path)
 {
   sqlite3 *db = NULL;
 
-  int r = sqlite3_open_v2(path, &db, SQLITE_OPEN_READONLY, NULL);
+  int r = sqlite3_open_v2(path, &db, SQLITE_OPEN_READWRITE, NULL);
   if (r != SQLITE_OK) {
     mdbfs_error("unable to open SQLite database at %s: %s", path, sqlite3_errmsg(_db));
     return NULL;
@@ -543,12 +546,86 @@ quit:
 }
 
 /**
+ * Write content to a file.
  *
+ * @param path     [in] Path to the file.
+ * @param buf      [in] A buffer containing data to be written.
+ * @param bufsize  [in] Size of the buffer `buf`.
+ * @param offset   [in] Offset to the file. This is ignored.
+ * @param fileinfo [in] Information about the file.
  */
 static int _write(const char *path, const char *buf, size_t bufsize, off_t offset, struct fuse_file_info *fileinfo)
 {
-  /* So far we only implement a read-only file system */
-  return -ENOSPC;
+  char *table  = NULL;
+  char *row    = NULL;
+  char *column = NULL;
+  sqlite3_stmt *stmt = NULL;
+  int retval = 0; /* Value to be returned by this function */
+  int r      = 0; /* Used to receive return values of calling functions */
+
+  (void) offset;
+  (void) fileinfo;
+
+  /* Only files mapping to cells are writable, otherwise illegal */
+  if (!is_path_file(path))
+    return -ENOSPC; /* XXX: Is this error code correct? */
+
+  r = extract_path(&table, &row, &column, path);
+  if (!r) {
+    retval = -EINTR;
+    goto quit;
+  }
+
+  assert(table);
+  assert(row);
+  assert(column);
+
+  /* Prepare the SQL query
+   * We select the cell to see if there is any result
+   */
+  size_t sql_length = strlen(fmt_sql_update_set_where) + strlen(table) + strlen(column) + bufsize + strlen("ROWID") + strlen(row);
+  char *sql = mdbfs_malloc(sql_length);
+  snprintf(sql, sql_length, fmt_sql_update_set_where, table, column, buf, "ROWID", row);
+
+  mdbfs_debug("To be prepared: %s", sql);
+
+  r = sqlite3_prepare_v2(_db, sql, -1, &stmt, NULL);
+  if (r != SQLITE_OK) {
+    mdbfs_error("write: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
+    retval = -EINTR;
+    goto quit_free;
+  }
+
+  mdbfs_free(sql);
+
+  /* Execute the SQL query */
+  r = sqlite3_step(stmt);
+  if (r != SQLITE_DONE) {
+    mdbfs_warning("write: sqlite3 cannot finish the write request: %s", sqlite3_errmsg(_db));
+    retval = -EINTR;
+    goto quit_finalize;
+  }
+
+  mdbfs_info("write: cell update succeeded");
+
+  /* Bytes written is the length of buffer */
+  retval = bufsize;
+
+quit_finalize:
+  /* Destruct statement */
+  r = sqlite3_finalize(stmt);
+  if (r != SQLITE_OK) {
+    mdbfs_warning("write: sqlite3 cannot finalize the SQL statement: %s", sqlite3_errmsg(_db));
+    mdbfs_warning("write: dropping the statement object anyway, but memory leak happens...");
+  }
+
+quit_free:
+  mdbfs_free(column);
+  mdbfs_free(row);
+  mdbfs_free(table);
+
+quit:
+  return retval;
 }
 
 /**
