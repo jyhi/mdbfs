@@ -245,7 +245,7 @@ static bool path_exists(const char const *path)
         continue;
       }
 
-      if (strcmp(path, table_name) == 0) {
+      if (strcmp(table, table_name) == 0) {
         mdbfs_debug("%s exists in db", path);
         retval = true;
         goto quit_finalize;
