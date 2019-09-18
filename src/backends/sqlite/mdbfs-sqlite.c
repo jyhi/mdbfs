@@ -230,7 +230,7 @@ static bool path_exists(const char const *path)
     r = sqlite3_prepare_v2(_db, sql_get_tables, -1, &stmt, NULL);
     if (r != SQLITE_OK) {
       mdbfs_error("path_exists: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
-      retval = -ENOENT;
+      retval = false;
       goto quit_free;
     }
 
@@ -253,7 +253,7 @@ static bool path_exists(const char const *path)
     }
 
     /* Anyway. */
-    retval = -ENOENT;
+    retval = false;
     goto quit_finalize;
 
   } else if (table && row && !column) {
