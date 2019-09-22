@@ -27,6 +27,12 @@ static const char const *fmt_sql_select_from_where =
 static const char const *fmt_sql_alter_table_add_column =
   "ALTER TABLE '%s' ADD COLUMN '%s'";
 
+static const char const *fmt_sql_alter_table_rename_to =
+  "ALTER TABLE '%s' RENAME TO '%s'";
+
+static const char const *fmt_sql_alter_table_rename_column_to =
+  "ALTER TABLE '%s' RENAME COLUMN '%s' TO '%s'";
+
 static const char const *fmt_sql_update_set_where =
   "UPDATE '%s' SET '%s' = '%s' WHERE %s = '%s'";
 
@@ -481,10 +487,138 @@ quit:
   return retval;
 }
 
+/**
+ * Rename a directory or a file.
+ *
+ * @param path1 [in] The original path.
+ * @param path2 [in] The target path.
+ * @parma flags [in] A flag given by FUSE representing a renaming scheme, which
+ *                   may be either `RENAME_EXCHANGE` or `RENAME_NOREPLACE`.
+ * @return 0 on success, any negative error code on failure.
+ */
 static int _rename(const char *path1, const char *path2, unsigned int flags)
 {
-  /* So far we only implement a read-only file system */
-  return -EROFS;
+  char *table1  = NULL;
+  char *row1    = NULL;
+  char *column1 = NULL;
+  char *table2  = NULL;
+  char *row2    = NULL;
+  char *column2 = NULL;
+  sqlite3_stmt *stmt = NULL;
+  int retval = 0; /* Value to be returned by this function */
+  int r      = 0; /* Used to receive return values of calling functions */
+
+  r = extract_path(&table1, &row1, &column1, path1);
+  if (!r) {
+    retval = -EINTR;
+    goto quit;
+  }
+
+  r = extract_path(&table2, &row2, &column2, path2);
+  if (!r) {
+    retval = -EINTR;
+    goto quit;
+  }
+
+  if ((!table1 && !row1 && !column1) &&
+      (!table2 && !row2 && !column2))
+  {
+
+    /* There is no way to rename a root */
+    mdbfs_debug("cannot rename root");
+    retval = -EROFS;
+    goto quit_free;
+
+  } else if ((table1 && !row1 && !column1) &&
+             (table2 && !row2 && !column2))
+  {
+
+    /* Renaming a table */
+    size_t sql_length = strlen(fmt_sql_alter_table_rename_to) + strlen(table1) + strlen(table2);
+    char *sql = mdbfs_malloc(sql_length);
+    snprintf(sql, sql_length, fmt_sql_alter_table_rename_to, table1, table2);
+
+    mdbfs_debug("To be prepared: %s", sql);
+
+    r = sqlite3_prepare_v2(_db, sql, -1, &stmt, NULL);
+    if (r != SQLITE_OK) {
+      mdbfs_error("rename: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
+      retval = -EINTR;
+      goto quit_free;
+    }
+
+    mdbfs_free(sql);
+
+  } else if ((table1 && row1 && !column1) &&
+             (table2 && row2 && !column2))
+  {
+
+    /* There is no way to rename a row */
+    mdbfs_debug("cannot rename a row, rejecting");
+    retval = -EROFS;
+    goto quit_free;
+
+  } else if ((table1 && row1 && column1) &&
+             (table2 && row2 && column2))
+  {
+
+    /* There is no way to move files around... */
+    if (strcmp(table1, table2) != 0 || strcmp(row1, row2) != 0) {
+      mdbfs_debug("columns cannot be moved around the fs... rejecting");
+      retval = -EROFS;
+      goto quit_free;
+    }
+
+    /* Renaming a column */
+    size_t sql_length = strlen(fmt_sql_alter_table_rename_column_to) + strlen(table1) + strlen(column1) + strlen(column2);
+    char *sql = mdbfs_malloc(sql_length);
+    snprintf(sql, sql_length, fmt_sql_alter_table_rename_column_to, table1, column1, column2);
+
+    mdbfs_debug("To be prepared: %s", sql);
+
+    r = sqlite3_prepare_v2(_db, sql, -1, &stmt, NULL);
+    if (r != SQLITE_OK) {
+      mdbfs_error("rename: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
+      retval = -EINTR;
+      goto quit_free;
+    }
+
+    mdbfs_free(sql);
+
+  } else {
+
+    /* ? */
+    retval = -EINTR;
+    goto quit_free;
+
+  }
+
+  /* Execute the SQL query */
+  r = sqlite3_step(stmt);
+  if (r != SQLITE_DONE) {
+    mdbfs_warning("rename: sqlite3 execution error: %s", sqlite3_errmsg(_db));
+    retval = -EINTR;
+    goto quit_finalize;
+  }
+
+quit_finalize:
+  /* Destruct statement */
+  r = sqlite3_finalize(stmt);
+  if (r != SQLITE_OK) {
+    mdbfs_warning("rename: sqlite3 cannot finalize the SQL statement: %s", sqlite3_errmsg(_db));
+    mdbfs_warning("rename: dropping the statement object anyway, but memory leak happens...");
+  }
+
+quit_free:
+  mdbfs_free(column2);
+  mdbfs_free(row2);
+  mdbfs_free(table2);
+  mdbfs_free(column1);
+  mdbfs_free(row1);
+  mdbfs_free(table1);
+
+quit:
+  return retval;
 }
 
 /**
