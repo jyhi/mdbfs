@@ -24,6 +24,9 @@ static const char const *fmt_sql_select_from =
 static const char const *fmt_sql_select_from_where =
   "SELECT %s FROM '%s' WHERE %s = '%s'";
 
+static const char const *fmt_sql_alter_table_add_column =
+  "ALTER TABLE '%s' ADD COLUMN '%s'";
+
 static const char const *fmt_sql_update_set_where =
   "UPDATE '%s' SET '%s' = '%s' WHERE %s = '%s'";
 
@@ -400,15 +403,82 @@ static void _destroy(void *private_data)
   _db = NULL;
 }
 
-static int _create(const char *path, mode_t mode, struct fuse_file_info *fileinfo)
+/**
+ * Create a file.
+ *
+ * @param path [in] The path to the file to be created.
+ * @param mode [in] Mode to be applied to the new file.
+ * @param device [inout] Something.
+ * @return 0 on success, any negative error code on failure.
+ */
+static int _mknod(const char *path, mode_t mode, dev_t device)
 {
-  /* "A call to creat() is equivalent to calling open() with flags equal to
-   * O_CREAT|O_WRONLY|O_TRUNC."
-   * -- Linux Programmer's Manual, open(2)
-   */
+  char *table  = NULL;
+  char *row    = NULL;
+  char *column = NULL;
+  sqlite3_stmt *stmt = NULL;
+  bool retval = 0; /* Value to be returned by this function */
+  int  r      = 0; /* Used to receive return values of calling functions */
 
-  /* So far we only implement a read-only file system */
-  return -EROFS;
+  (void)mode;
+  (void)device;
+
+  /* No file is allowed on directory levels. */
+  r = is_path_file(path);
+  if (!r) {
+    retval = -EROFS;
+    goto quit;
+  }
+
+  r = extract_path(&table, &row, &column, path);
+  if (!r) {
+    retval = -EINTR;
+    goto quit;
+  }
+
+  assert(table);
+  assert(row);
+  assert(column);
+
+  /* Add a column. */
+  size_t sql_length = strlen(fmt_sql_alter_table_add_column) + strlen(table) + strlen(column);
+  char *sql = mdbfs_malloc(sql_length);
+  snprintf(sql, sql_length, fmt_sql_alter_table_add_column, table, column);
+
+  mdbfs_debug("To be prepared: %s", sql);
+
+  r = sqlite3_prepare_v2(_db, sql, -1, &stmt, NULL);
+  if (r != SQLITE_OK) {
+    mdbfs_error("mknod: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
+    retval = -EINTR;
+    goto quit_free;
+  }
+
+  mdbfs_free(sql);
+
+  /* Execute the SQL query */
+  r = sqlite3_step(stmt);
+  if (r != SQLITE_DONE) {
+    mdbfs_warning("mknod: sqlite3 execution error: %s", sqlite3_errmsg(_db));
+    retval = -EINTR;
+    goto quit_finalize;
+  }
+
+quit_finalize:
+  /* Destruct statement */
+  r = sqlite3_finalize(stmt);
+  if (r != SQLITE_OK) {
+    mdbfs_warning("mknod: sqlite3 cannot finalize the SQL statement: %s", sqlite3_errmsg(_db));
+    mdbfs_warning("mknod: dropping the statement object anyway, but memory leak happens...");
+  }
+
+quit_free:
+  mdbfs_free(column);
+  mdbfs_free(row);
+  mdbfs_free(table);
+
+quit:
+  return retval;
 }
 
 static int _rename(const char *path1, const char *path2, unsigned int flags)
@@ -1069,7 +1139,7 @@ struct mdbfs_operations *mdbfs_backend_sqlite_register(void)
   ret->load     = _load;
   ret->init     = _init;
   ret->destroy  = _destroy;
-  ret->create   = _create;
+  ret->mknod    = _mknod;
   ret->rename   = _rename;
   ret->unlink   = _unlink;
   ret->mkdir    = _mkdir;
