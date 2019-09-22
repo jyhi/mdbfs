@@ -421,11 +421,26 @@ static int _unlink(const char *path)
 }
 
 /**
+ * Create a directory at path.
  *
+ * This is a no-op, since in this backend we do not allow directory creating:
+ *
+ * - Creating a directory mapping to a table creates a table without any column,
+ *   which is illegal.
+ * - Creating a directory mapping to a row creates a row, but the name of the
+ *   directory is hard to validate.
+ *
+ * Thus, this function always return -EROFS (read-only file system).
+ *
+ * @param path [in] The path to create.
+ * @param mode [in] The file mode to be applied to the new directory.
+ * @return 0 on success, any negative error code on failure.
  */
 static int _mkdir(const char *path, mode_t mode)
 {
-  /* So far we only implement a read-only file system */
+  (void)path;
+  (void)mode;
+
   return -EROFS;
 }
 
