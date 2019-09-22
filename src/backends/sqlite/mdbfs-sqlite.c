@@ -27,6 +27,12 @@ static const char const *fmt_sql_select_from_where =
 static const char const *fmt_sql_update_set_where =
   "UPDATE '%s' SET '%s' = '%s' WHERE %s = '%s'";
 
+static const char const *fmt_sql_drop_table =
+  "DROP TABLE '%s'";
+
+static const char const *fmt_sql_delete_from_where =
+  "DELETE FROM '%s' WHERE %s = '%s'";
+
 /********** Private States **********/
 
 /**
@@ -412,11 +418,18 @@ static int _rename(const char *path1, const char *path2, unsigned int flags)
 }
 
 /**
+ * Remove a file at path.
  *
+ * This always fails, as SQLite does not support dropping columns (which are
+ * mapped by files in this driver).
+ *
+ * @param path [in] The file to be removed.
+ * @return -EROFS.
  */
 static int _unlink(const char *path)
 {
-  /* So far we only implement a read-only file system */
+  (void)path;
+
   return -EROFS;
 }
 
@@ -445,12 +458,108 @@ static int _mkdir(const char *path, mode_t mode)
 }
 
 /**
+ * Remove a directory at path.
  *
+ * @param path [in] The path to directory to be removed.
+ * @return 0 on success, any negative error code on failure.
  */
 static int _rmdir(const char *path)
 {
-  /* So far we only implement a read-only file system */
-  return -EROFS;
+  char *table  = NULL;
+  char *row    = NULL;
+  char *column = NULL;
+  sqlite3_stmt *stmt = NULL;
+  int retval = 0; /* Value to be returned by this function */
+  int r      = 0; /* Used to receive return values of calling functions */
+
+  /* There should not be any directory in the file level (column) */
+  r = is_path_file(path);
+  if (r) {
+    retval = -EACCES;
+    goto quit;
+  }
+
+  r = extract_path(&table, &row, &column, path);
+  if (!r) {
+    retval = -EINTR;
+    goto quit;
+  }
+
+  assert(!column);
+
+  if (!table && !row && !column) {
+
+    /* Removing (dropping) the database. */
+    return -EACCES;
+
+  } else if (table && !row && !column) {
+
+    /* Removing (dropping) a table. */
+    size_t sql_length = strlen(fmt_sql_drop_table) + strlen(table);
+    char *sql = mdbfs_malloc(sql_length);
+    snprintf(sql, sql_length, fmt_sql_drop_table, table);
+
+    mdbfs_debug("To be prepared: %s", sql);
+
+    r = sqlite3_prepare_v2(_db, sql, -1, &stmt, NULL);
+    if (r != SQLITE_OK) {
+      mdbfs_error("rmdir: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
+      retval = -EINTR;
+      goto quit_free;
+    }
+
+    mdbfs_free(sql);
+
+  } else if (table && row && !column) {
+
+    /* Removing a row. */
+    size_t sql_length = strlen(fmt_sql_delete_from_where) + strlen(table) + strlen("ROWID") + strlen(row);
+    char *sql = mdbfs_malloc(sql_length);
+    snprintf(sql, sql_length, fmt_sql_delete_from_where, table, "ROWID", row);
+
+    mdbfs_debug("To be prepared: %s", sql);
+
+    r = sqlite3_prepare_v2(_db, sql, -1, &stmt, NULL);
+    if (r != SQLITE_OK) {
+      mdbfs_error("rmdir: sqlite3 cannot prepare a SQL statement for us: %s", sqlite3_errmsg(_db));
+      retval = -EINTR;
+      goto quit_free;
+    }
+
+    mdbfs_free(sql);
+
+  } else {
+
+    /* This should never happen. */
+    mdbfs_warning("rmdir: attempt to remove a directory mapping to column, this should never happen.");
+    retval = -EINTR;
+    goto quit_free;
+
+  }
+
+  /* Execute the SQL query */
+  r = sqlite3_step(stmt);
+  if (r != SQLITE_DONE) {
+    mdbfs_warning("rmdir: sqlite3 execution error: %s", sqlite3_errmsg(_db));
+    retval = -EINTR;
+    goto quit_finalize;
+  }
+
+quit_finalize:
+  /* Destruct statement */
+  r = sqlite3_finalize(stmt);
+  if (r != SQLITE_OK) {
+    mdbfs_warning("rmdir: sqlite3 cannot finalize the SQL statement: %s", sqlite3_errmsg(_db));
+    mdbfs_warning("rmdir: dropping the statement object anyway, but memory leak happens...");
+  }
+
+quit_free:
+  mdbfs_free(column);
+  mdbfs_free(row);
+  mdbfs_free(table);
+
+quit:
+  return retval;
 }
 
 /**
