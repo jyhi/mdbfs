@@ -21,6 +21,7 @@ static struct _cmdline_options {
   char *type;      /**< Database type */
   char *path;      /**< Path to the database file */
   int   show_help; /**< Whether help message should be shown */
+  int   show_version; /**< Whether version information should be shown */
 } cmdline_options;
 
 /**
@@ -40,6 +41,8 @@ static const struct fuse_opt cmdline_option_spec[] = {
   CMDLINE_OPTION("--db=%s", path),
   CMDLINE_OPTION("--help", show_help),
   CMDLINE_OPTION("-h", show_help),
+  CMDLINE_OPTION("--version", show_version),
+  CMDLINE_OPTION("-v", show_version),
   FUSE_OPT_END,
 };
 
@@ -58,6 +61,14 @@ void show_help(const char const *progname) {
     "\n",
     PROJECT_NAME, PROJECT_DESCRIPTION, PROJECT_VERSION, progname
   );
+}
+
+/**
+ * Print MDBFS-specific help message to stdout.
+ */
+void show_version(void)
+{
+  puts(PROJECT_VERSION);
 }
 
 /**
@@ -88,6 +99,11 @@ int main(int argc, char **argv)
     args.argv[0][0] = '\0';
 
     goto fusemain;
+  }
+
+  if (cmdline_options.show_version) {
+    show_version();
+    goto quit;
   }
 
   if (!cmdline_options.path) {
@@ -124,6 +140,7 @@ fusemain:
   /* Nike -- Just Do It. */
   r = fuse_main(args.argc, args.argv, &fuse_ops, db);
 
+quit:
   /* Free unused memory (2nd wave) */
   fuse_opt_free_args(&args);
   mdbfs_free(cmdline_options.type);
