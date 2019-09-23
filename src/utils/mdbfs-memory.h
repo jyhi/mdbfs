@@ -34,6 +34,6 @@ void *mdbfs_malloc0(size_t size);
  * @param ptr [in,out] A pointer pointing to a pointer pointing to the memory
  *                     region to be free'd.
  */
-#define mdbfs_free(ptr) { if (ptr) free(ptr), ptr = NULL; }
+#define mdbfs_free(ptr) { if (ptr) free(ptr), (ptr) = NULL; }
 
 #endif
