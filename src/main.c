@@ -11,7 +11,6 @@
 #include <stddef.h>
 #include <fuse.h>
 #include "backends/dispatcher.h"
-#include "configmgr/configmgr.h"
 #include "utils/mdbfs-utils.h"
 
 /**
