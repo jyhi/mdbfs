@@ -27,7 +27,6 @@ struct mdbfs_operations {
   void  (*destroy) (void *private_data);
 
   /* File Object Manipulation */
-  int (*create) (const char *, mode_t, struct fuse_file_info *);
   int (*mknod)  (const char *, mode_t, dev_t);
   int (*rename) (const char *, const char *, unsigned int);
   int (*unlink) (const char *);
@@ -35,7 +34,6 @@ struct mdbfs_operations {
   int (*rmdir)  (const char *);
 
   /* I/O */
-  int (*open)    (const char *, struct fuse_file_info *);
   int (*read)    (const char *, char *, size_t, off_t, struct fuse_file_info *);
   int (*write)   (const char *, const char *, size_t, off_t, struct fuse_file_info *);
   int (*opendir) (const char *, struct fuse_file_info *);
