@@ -83,6 +83,7 @@ int main(int argc, char **argv)
 {
   int r = 0;
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+  struct mdbfs_operations *ops = NULL;
 
   /* Deal with command line arguments first */
   r = fuse_opt_parse(&args, &cmdline_options, cmdline_option_spec, NULL);
@@ -108,33 +109,34 @@ int main(int argc, char **argv)
 
   if (!cmdline_options.path) {
     mdbfs_info("database path is missing; use --db= to specify a database.");
-    return 2;
+    r = 2;
+    goto quit;
   }
 
   if (!cmdline_options.type) {
     mdbfs_info("you must specify a database backend type.");
-    return 1;
+    r = 1;
+    goto quit;
   }
 
   /* Get the right backend to use */
-  struct mdbfs_operations *ops = mdbfs_backend_get(cmdline_options.type);
+  ops = mdbfs_backend_get(cmdline_options.type);
   if (!ops) {
     mdbfs_error("type \"%s\" does not match any supported database backend.", cmdline_options.type);
-    return 1;
+    r = 1;
+    goto quit;
   }
 
   /* NOTE: we need to load the database before the file system runs... */
   void *db = ops->load(cmdline_options.path);
   if (!db) {
     mdbfs_error("unable to load database");
-    return 2;
+    r = 2;
+    goto quit;
   }
 
   /* Transform mdbfs_operations to fuse_operations */
   struct fuse_operations fuse_ops = mdbfs_operations_map_to_fuse_operations(*ops);
-
-  /* Free unused memory (1st wave) */
-  mdbfs_free(ops);
 
 fusemain:
   /* Nike -- Just Do It. */
@@ -143,6 +145,7 @@ fusemain:
 quit:
   /* Free unused memory (2nd wave) */
   fuse_opt_free_args(&args);
+  mdbfs_free(ops);
   mdbfs_free(cmdline_options.type);
   mdbfs_free(cmdline_options.path);
 
