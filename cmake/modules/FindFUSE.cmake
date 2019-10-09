@@ -49,16 +49,36 @@ endif()
 
 # Find include path (-I)
 find_path(
-    FUSE_INCLUDE_DIRS
-    "fuse.h"
-    PATH_SUFFIXES ${FUSE_NAME}
+  FUSE_INCLUDE_DIRS
+  "fuse.h"
+  PATH_SUFFIXES ${FUSE_NAME}
 )
 
 # Find library (-l)
-find_library(
+if(STATIC_FUSE)
+  find_library(
     FUSE_LIBRARY
-    ${FUSE_NAME}
-)
+    ${CMAKE_STATIC_LIBRARY_PREFIX}${FUSE_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else()
+  find_library(FUSE_LIBRARY ${FUSE_NAME})
+endif()
+
+# Additionally find dependencies for static linking
+if(STATIC_FUSE)
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_package(Threads REQUIRED)
+
+  if(NOT LIBDL_FOUND)
+    find_library(LIBDL dl)
+    if(LIBDL)
+      message("-- Found libdl: ${LIBDL}")
+      set(LIBDL_FOUND TRUE)
+    else()
+      message(FATAL_ERROR "libdl not found, which is required by FUSE when statically linked")
+    endif()
+  endif()
+endif()
 
 # FUSE 2 additionally adds -D_FILE_OFFSET_BITS=64 to CFLAGS, but not in 3.
 if(FUSE_FINDVERSION_MAJOR LESS_EQUAL 2)
@@ -93,13 +113,24 @@ find_package_handle_standard_args(
 
 # Add imported target for easier future use
 add_library(FUSE::FUSE UNKNOWN IMPORTED)
-set_target_properties(
-  FUSE::FUSE
-  PROPERTIES
-  IMPORTED_LOCATION "${FUSE_LIBRARY}"
-  INTERFACE_INCLUDE_DIRECTORIES "${FUSE_INCLUDE_DIRS}"
-  INTERFACE_COMPILE_DEFINITIONS "${FUSE_DEFINITIONS}"
-)
+if(STATIC_FUSE)
+  set_target_properties(
+    FUSE::FUSE
+    PROPERTIES
+    IMPORTED_LOCATION "${FUSE_LIBRARY}"
+    INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT} ${LIBDL}"
+    INTERFACE_INCLUDE_DIRECTORIES "${FUSE_INCLUDE_DIRS}"
+    INTERFACE_COMPILE_DEFINITIONS "${FUSE_DEFINITIONS}"
+  )
+else()
+  set_target_properties(
+    FUSE::FUSE
+    PROPERTIES
+    IMPORTED_LOCATION "${FUSE_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${FUSE_INCLUDE_DIRS}"
+    INTERFACE_COMPILE_DEFINITIONS "${FUSE_DEFINITIONS}"
+  )
+endif()
 
 # Unset global variables
 unset(FUSE_COMMON_H)

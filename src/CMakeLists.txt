@@ -4,6 +4,7 @@ find_package(FUSE 3.2 REQUIRED)
 # Source code to be built
 set(
   SRCS
+  backend.c
   main.c
 )
 
@@ -25,8 +26,7 @@ install(TARGETS mdbfs)
 # Link against targets
 target_link_libraries(
   mdbfs
-  PRIVATE mdbfs-sqlite
-  PRIVATE mdbfs-dispatcher
+  PRIVATE mdbfs-backends
   PRIVATE mdbfs-utils
 )
 

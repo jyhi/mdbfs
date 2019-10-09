@@ -1,5 +1,5 @@
 /**
- * @file mdbfs-memory.h
+ * @file memory.h
  *
  * Public interface of memory related utilities.
  */
@@ -27,6 +27,18 @@ void *mdbfs_malloc(size_t size);
  * @return A pointer pointing to the zeroed allocated memory region.
  */
 void *mdbfs_malloc0(size_t size);
+
+/**
+ * Reallocate a memory region with the given new size.
+ *
+ * Upon failure, this function will properly handle errors, exit the driver, and
+ * will not return. Thus, extra error handling is not needed.
+ *
+ * @param ptr  [in] Pointer to the old memory region.
+ * @param size [in] Size of the memory to allocate.
+ * @return A pointer pointing to the allocated memory region.
+ */
+void *mdbfs_realloc(void *ptr, size_t size);
 
 /**
  * Free the memeory region pointed by ptr, then set ptr to NULL.

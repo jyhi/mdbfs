@@ -1,5 +1,5 @@
 /**
- * @file mdbfs-print.c
+ * @file print.c
  *
  * Implementation of MDBFS specific console printing functions.
  */
@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "mdbfs-print.h"
+#include "print.h"
 
 /**
  * Extract only message level.

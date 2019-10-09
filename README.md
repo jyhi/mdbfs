@@ -6,11 +6,18 @@ This project implements a file system in userspace (FUSE) that takes a database 
 
 ## Dependencies
 
-### Required Dependencies
+### Required Build Dependencies
 
 - **LibFUSE** as facilities to file system in userspace implementation
-- **libstdc++(.6)** that supports C++17 _filesystem library_
-  - and optionally compilers that support C++17
+- A C compiler that supports **C99**
+- A C++ compiler that supports **C++17**, particularly **std::filesystem**
+
+### Required Runtime Dependencies
+
+- **LibFUSE** for FUSE to work
+- **libgcc** and **libstdc++(.6)** that supports **C++17 std::filesystem**
+
+The above dependencies can be statically compiled into the binary, so that the binary can be easily distributed. See [Build](#Build).
 
 ### Optional Dependencies
 
@@ -31,8 +38,16 @@ make     # Build the project, may differ based on the generator you choose
 
 You can specify some options in `cmake` to customize your build:
 
-- `-DBUILD_DOCUMENTATION`: Enable build target for API documentation using Doxygen in HTML, default to `ON`
-  - However, the documentation is not built automatically (not in `ALL` target). To build the API documentation, use `make docs` (or equivalences in other build systems).
+- `-DBUILD_DOCUMENTATION`: Enable build target for API documentation using Doxygen in HTML, default to `OFF`
+  - The documentation is not built automatically (not in `ALL` target). To build the API documentation, use `make docs` (or equivalences in other build systems).
+- `-DBUILD_SQLITE3`: Enable the SQLite3 database backend, default to `ON`
+
+The following options make parts of code be statically compiled into the binary:
+
+- `-DSTATIC_SQLITE3`: Statically compile the SQLite3 library into the backend, default to `OFF`
+- `-DSTATIC_FUSE`: Statically compile the FUSE code into the binary, default to `OFF`
+- `-DSTATIC_LIBGCC`: Statically compile `libgcc` into the binary, default to `OFF`
+- `-DSTATIC_LIBSTDCXX`: Statically compile `libstdc++` into the binary, default to `OFF`
 
 [cmake]: https://cmake.org
 

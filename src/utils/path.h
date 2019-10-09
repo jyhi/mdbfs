@@ -1,5 +1,5 @@
 /**
- * @file mdbfs-path.h
+ * @file path.h
  *
  * Public interfaces of path related utilities.
  */

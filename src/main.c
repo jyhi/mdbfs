@@ -10,8 +10,9 @@
 #include <string.h>
 #include <stddef.h>
 #include <fuse.h>
-#include "backends/dispatcher.h"
-#include "utils/mdbfs-utils.h"
+#include "backend.h"
+#include "utils/memory.h"
+#include "utils/print.h"
 
 /**
  * Internal global structure holding the accepted command line options fed by
@@ -50,6 +51,8 @@ static const struct fuse_opt cmdline_option_spec[] = {
  * Print MDBFS-specific help message to stdout.
  */
 void show_help(const char const *progname) {
+  char *backend_helps = mdbfs_backends_get_help();
+
   printf(
     "%s: %s, version %s\n"
     "\n"
@@ -58,17 +61,29 @@ void show_help(const char const *progname) {
     "    --db=<s>      Path to the database to mount.\n"
     "                  Depending on the database backend type, this may vary.\n"
     "    --type=<s>    Specify the type of database (backend).\n"
-    "\n",
-    PROJECT_NAME, PROJECT_DESCRIPTION, PROJECT_VERSION, progname
+    "\n"
+    "Help messages from backends:\n"
+    "\n"
+    "%s",
+    PROJECT_NAME, PROJECT_DESCRIPTION, PROJECT_VERSION, progname, backend_helps
   );
+
+  mdbfs_free(backend_helps);
 }
 
 /**
- * Print MDBFS-specific help message to stdout.
+ * Print MDBFS version with its backend versions to stdout.
  */
 void show_version(void)
 {
-  puts(PROJECT_VERSION);
+  char *backend_versions = mdbfs_backends_get_version();
+
+  printf(
+    "%s version %s\n%s", /* The returned versions have a blank line */
+    PROJECT_NAME, PROJECT_VERSION, backend_versions
+  );
+
+  mdbfs_free(backend_versions);
 }
 
 /**
@@ -83,7 +98,7 @@ int main(int argc, char **argv)
 {
   int r = 0;
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-  struct mdbfs_operations *ops = NULL;
+  struct mdbfs_backend *backend = NULL;
 
   /* Deal with command line arguments first */
   r = fuse_opt_parse(&args, &cmdline_options, cmdline_option_spec, NULL);
@@ -119,33 +134,40 @@ int main(int argc, char **argv)
     goto quit;
   }
 
-  /* Get the right backend to use */
-  ops = mdbfs_backend_get(cmdline_options.type);
-  if (!ops) {
+  backend = mdbfs_backend_get(cmdline_options.type);
+  if (!backend) {
     mdbfs_error("type \"%s\" does not match any supported database backend.", cmdline_options.type);
     r = 1;
     goto quit;
   }
 
-  /* NOTE: we need to load the database before the file system runs... */
-  void *db = ops->load(cmdline_options.path);
-  if (!db) {
-    mdbfs_error("unable to load database");
-    r = 2;
+  r = backend->init(argc, argv);
+  if (!r) {
+    mdbfs_error("backend \"%s\" encounters an error during initialization.", cmdline_options.type);
+    r = 1;
     goto quit;
   }
 
-  /* Transform mdbfs_operations to fuse_operations */
-  struct fuse_operations fuse_ops = mdbfs_operations_map_to_fuse_operations(*ops);
+  r = backend->open(cmdline_options.path);
+  if (r <= 0) {
+    mdbfs_error("backend \"%s\" cannot open the database: %s", cmdline_options.type, strerror(-r));
+    backend->deinit();
+    r = -r;
+    goto quit;
+  }
 
 fusemain:
-  /* Nike -- Just Do It. */
-  r = fuse_main(args.argc, args.argv, &fuse_ops, db);
+  if (backend) {
+    struct fuse_operations fuse_ops = backend->get_fuse_operations();
+    r = fuse_main(args.argc, args.argv, &fuse_ops, NULL);
+  } else {
+    r = fuse_main(args.argc, args.argv, NULL, NULL);
+  }
 
 quit:
   /* Free unused memory (2nd wave) */
   fuse_opt_free_args(&args);
-  mdbfs_free(ops);
+  mdbfs_free(backend);
   mdbfs_free(cmdline_options.type);
   mdbfs_free(cmdline_options.path);
 
@@ -168,21 +190,4 @@ quit:
  * concept (PoC). It is not advised to use it in production environment.
  *
  * [sql]: https://en.wikipedia.org/wiki/SQL
- *
- * @section overview Overview
- *
- * `mdbfs` consists of 3 parts:
- *
- * - a helper utility (`mdbfs`) for users' convenient mounting and unmounting
- * - a file system in userspace (FUSE) to display contents in file system
- *   hierarchy
- * - a database adapter acting as a backend to perform database-specific
- *   operations, and pass contents between the file system driver mentioned
- *   above and the database management systems.
- *
- * They don't have clear boundaries in the code; only for reference.
- *
- * @section hierarchy Repository Hierarchy
- *
- * - `src/` contains source code of this project
  */

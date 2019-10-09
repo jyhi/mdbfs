@@ -1,5 +1,5 @@
 /**
- * @file mdbfs-path.h
+ * @file path.cxx
  *
  * Implementation of path related operations.
  */

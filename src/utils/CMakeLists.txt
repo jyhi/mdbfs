@@ -1,13 +1,18 @@
 # Source code to be built
 set(
   SRCS
-  mdbfs-print.c
-  mdbfs-memory.c
-  mdbfs-path.cxx
+  memory.c
+  path.cxx
+  print.c
 )
 
-# Utilities are statically compiled
-add_library(mdbfs-utils STATIC ${SRCS})
+add_library(mdbfs-utils ${SRCS})
 
-# ... but with -fPIC
-set_property(TARGET mdbfs-utils PROPERTY POSITION_INDEPENDENT_CODE ON)
+# The CXX libraries can be statically compiled to reduce dependencies
+if(STATIC_LIBGCC)
+  target_link_options(mdbfs-utils INTERFACE -static-libgcc)
+endif()
+
+if(STATIC_LIBSTDCXX)
+  target_link_options(mdbfs-utils INTERFACE -static-libstdc++)
+endif()
