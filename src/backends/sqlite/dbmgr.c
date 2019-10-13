@@ -394,28 +394,31 @@ uint8_t *mdbfs_backend_sqlite_get_cell(size_t *cell_length, const char *table_na
   }
 
   const uint8_t *cell = sqlite3_column_text(stmt, 0);
+
+  /* Don't quit, we still allocate a buffer with only a NUL to indicate that
+   * there is no error.
+   */
   if (!cell) {
-    mdbfs_warning("sqlite: get_cell: unexpected null");
-    goto quit;
+    mdbfs_debug("sqlite: get_cell: the cell is empty");
+    goto alloc;
   }
 
-  /* NOTE: Trick: If we get a string that is identical to the column name, the
-   * column does not exist. Jesus.
+  /* NOTE: If we get a string that is identical to the column name, then the
+   * column does not exist.
    */
   if (strcmp(cell, col_name) == 0) {
     mdbfs_debug("sqlite: get_cell: the column does not exist");
     goto quit;
   }
 
-  /* NOTE: If we get an empty string, the cell is empty */
-  if (strcmp(cell, "") == 0) {
-    mdbfs_debug("sqlite: get_cell: the cell is empty");
-  }
-
+alloc:
   /* NOTE: sqlite3_column_bytes does not include NUL */
   ret_length = sqlite3_column_bytes(stmt, 0);
   ret = mdbfs_malloc0(ret_length + 1); /* + 1 NUL */
-  memcpy(ret, cell, ret_length);
+
+  if (cell)
+    memcpy(ret, cell, ret_length);
+
   if (cell_length)
     *cell_length = ret_length;
 
