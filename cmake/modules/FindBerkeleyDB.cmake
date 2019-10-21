@@ -67,28 +67,19 @@ endif()
 # Handle CMake find_package() arguments
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-    "BerkeleyDB"
-    REQUIRED_VARS BERKELEY_DB_INCLUDE_DIRS BERKELEY_DB_LIBRARY
-    VERSION_VAR BERKELEY_DB_VERSION
+  "BerkeleyDB"
+  REQUIRED_VARS BERKELEY_DB_INCLUDE_DIRS BERKELEY_DB_LIBRARY
+  VERSION_VAR BERKELEY_DB_VERSION
 )
 
 # Add imported target for easier future use
 add_library(BerkeleyDB::BerkeleyDB UNKNOWN IMPORTED)
-if(STATIC_BERKELEY_DB)
-  set_target_properties(
-    BerkeleyDB::BerkeleyDB
-    PROPERTIES
-    IMPORTED_LOCATION "${BERKELEY_DB_LIBRARY}"
-    INTERFACE_INCLUDE_DIRECTORIES "${BERKELEY_DB_INCLUDE_DIRS}"
-  )
-else()
-  set_target_properties(
-    BerkeleyDB::BerkeleyDB
-    PROPERTIES
-    IMPORTED_LOCATION "${BERKELEY_DB_LIBRARY}"
-    INTERFACE_INCLUDE_DIRECTORIES "${BERKELEY_DB_INCLUDE_DIRS}"
-  )
-endif()
+set_target_properties(
+  BerkeleyDB::BerkeleyDB
+  PROPERTIES
+  IMPORTED_LOCATION "${BERKELEY_DB_LIBRARY}"
+  INTERFACE_INCLUDE_DIRECTORIES "${BERKELEY_DB_INCLUDE_DIRS}"
+)
 
 # Unset global variables
 unset(DB_H)
