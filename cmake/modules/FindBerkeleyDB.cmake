@@ -47,6 +47,24 @@ else()
   find_library(BERKELEY_DB_LIBRARY "db")
 endif()
 
+# Additionally find dependencies for static linking
+if(STATIC_BERKELEY_DB)
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_package(Threads REQUIRED)
+
+  if(NOT LIBDL_FOUND)
+    find_library(LIBDL dl)
+    if(LIBDL)
+      message("-- Found libdl: ${LIBDL}")
+      set(LIBDL_FOUND TRUE)
+    else()
+      message(FATAL_ERROR "libdl not found, which is required by Berkeley DB when statically linked")
+    endif()
+  endif()
+
+  find_package(OpenSSL REQUIRED)
+endif()
+
 # Extract FUSE version from the C header for comparison
 if(BERKELEY_DB_INCLUDE_DIRS)
   if(EXISTS "${BERKELEY_DB_INCLUDE_DIRS}/db.h")
@@ -74,12 +92,24 @@ find_package_handle_standard_args(
 
 # Add imported target for easier future use
 add_library(BerkeleyDB::BerkeleyDB UNKNOWN IMPORTED)
-set_target_properties(
-  BerkeleyDB::BerkeleyDB
-  PROPERTIES
-  IMPORTED_LOCATION "${BERKELEY_DB_LIBRARY}"
-  INTERFACE_INCLUDE_DIRECTORIES "${BERKELEY_DB_INCLUDE_DIRS}"
-)
+if(STATIC_FUSE)
+  set_target_properties(
+    BerkeleyDB::BerkeleyDB
+    PROPERTIES
+    IMPORTED_LOCATION "${BERKELEY_DB_LIBRARY}"
+    INTERFACE_LINK_LIBRARIES "${CMAKE_THREAD_LIBS_INIT} ${LIBDL} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${BERKELEY_DB_INCLUDE_DIRS}"
+    INTERFACE_COMPILE_DEFINITIONS "${BERKELEY_DB_DEFINITIONS}"
+  )
+else()
+  set_target_properties(
+    BerkeleyDB::BerkeleyDB
+    PROPERTIES
+    IMPORTED_LOCATION "${BERKELEY_DB_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${BERKELEY_DB_INCLUDE_DIRS}"
+    INTERFACE_COMPILE_DEFINITIONS "${BERKELEY_DB_DEFINITIONS}"
+  )
+endif()
 
 # Unset global variables
 unset(DB_H)
