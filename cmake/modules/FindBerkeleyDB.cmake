@@ -33,6 +33,7 @@ cmake_minimum_required(VERSION 3.0)
 # - BERKELEY_DB_VERSION: full version string of Berkeley DB
 # - BERKELEY_DB_MAJOR_VERSION: major version number of Berkeley DB
 # - BERKELEY_DB_MINOR_VERSION: minor version number of Berkeley DB
+# - BERKELEY_DB_PATCH_VERSION: patch version number of Berkeley DB
 
 # Find include path (-I)
 find_path(BERKELEY_DB_INCLUDE_DIRS "db.h")
