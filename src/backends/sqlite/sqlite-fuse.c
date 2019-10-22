@@ -147,7 +147,7 @@ static struct mdbfs_sqlite_path *mdbfs_sqlite_path_from_string(const char *path)
   p_end = p_start;
 
   /* If there is still anything, the path is illegal */
-  mdbfs_warning("sqlite: the path \"%s\" contains more than 3 components, which is illegal");
+  mdbfs_warning("sqlite: the path \"%s\" contains more than 3 components, which is illegal", path);
   mdbfs_free(ret->table);
   mdbfs_free(ret->row);
   mdbfs_free(ret->column)
