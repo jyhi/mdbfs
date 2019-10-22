@@ -183,8 +183,7 @@ char **mdbfs_backend_sqlite_get_table_names(void)
       mdbfs_free(ret[i]);
     }
     mdbfs_free(ret);
-    sqlite3_reset(stmt);
-    return NULL;
+    goto quit;
   }
 
   /* Additionally add a NULL at the end of list for iteration */
