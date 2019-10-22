@@ -107,7 +107,7 @@ endif()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     "FUSE"
-    REQUIRED_VARS FUSE_INCLUDE_DIRS FUSE_LIBRARY
+    REQUIRED_VARS FUSE_LIBRARY FUSE_INCLUDE_DIRS
     VERSION_VAR FUSE_VERSION
 )
 

@@ -86,7 +86,7 @@ endif()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
   "BerkeleyDB"
-  REQUIRED_VARS BERKELEY_DB_INCLUDE_DIRS BERKELEY_DB_LIBRARY
+  REQUIRED_VARS BERKELEY_DB_LIBRARY BERKELEY_DB_INCLUDE_DIRS
   VERSION_VAR BERKELEY_DB_VERSION
 )
 
