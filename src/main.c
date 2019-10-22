@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 
   r = backend->open(cmdline_options.path);
   if (r <= 0) {
-    mdbfs_error("backend \"%s\" cannot open the database: %s", cmdline_options.type, strerror(-r));
+    mdbfs_error("backend \"%s\" cannot open the database: %s", cmdline_options.type, r == 0 ? "internal error" : strerror(-r));
     backend->deinit();
     r = -r;
     goto quit;
