@@ -22,6 +22,7 @@ The above dependencies can be statically compiled into the binary, so that the b
 ### Optional Dependencies
 
 - **SQLite3** for SQLite (version 3) database backend support
+- **Berkeley DB 18.1.32** for Berkeley DB database backend support
 - **Doxygen** for API documentation generation
 
 For selecting optional dependencies in the build system, see [Build](#Build).
@@ -41,10 +42,12 @@ You can specify some options in `cmake` to customize your build:
 - `-DBUILD_DOCUMENTATION`: Enable build target for API documentation using Doxygen in HTML, default to `OFF`
   - The documentation is not built automatically (not in `ALL` target). To build the API documentation, use `make docs` (or equivalences in other build systems).
 - `-DBUILD_SQLITE3`: Enable the SQLite3 database backend, default to `ON`
+- `-DBUILD_BERKELEY_DB`: Enable the Berkeley DB ("DB") database backend, default to `ON`
 
 The following options make parts of code be statically compiled into the binary:
 
 - `-DSTATIC_SQLITE3`: Statically compile the SQLite3 library into the backend, default to `OFF`
+- `-DSTATIC_BERKELEY_DB`: Statically compile the Berkeley DB library into the backend, default to `OFF`
 - `-DSTATIC_FUSE`: Statically compile the FUSE code into the binary, default to `OFF`
 - `-DSTATIC_LIBGCC`: Statically compile `libgcc` into the binary, default to `OFF`
 - `-DSTATIC_LIBSTDCXX`: Statically compile `libstdc++` into the binary, default to `OFF`
