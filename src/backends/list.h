@@ -8,6 +8,7 @@
 #define MDBFS_BACKENDS_LIST_H
 
 #include "sqlite/mdbfs-backend.h"
+#include "berkeleydb/mdbfs-backend.h"
 
 /**
  * Private structure representing a backend and its related metadata.
@@ -32,6 +33,7 @@ struct mdbfs_backend_map {
  */
 static const struct mdbfs_backend_map mdbfs_backends[] = {
   {"sqlite", mdbfs_backend_sqlite_get_mdbfs_backend},
+  {"berkeleydb", mdbfs_backend_berkeleydb_get_mdbfs_backend},
   {NULL, NULL},
 };
 
