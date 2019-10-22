@@ -32,8 +32,14 @@ struct mdbfs_backend_map {
  * function; this creates alias for the backend.
  */
 static const struct mdbfs_backend_map mdbfs_backends[] = {
+#ifdef BUILD_SQLITE3
   {"sqlite", mdbfs_backend_sqlite_get_mdbfs_backend},
+#endif
+
+#ifdef BUILD_BERKELEY_DB
   {"berkeleydb", mdbfs_backend_berkeleydb_get_mdbfs_backend},
+#endif
+
   {NULL, NULL},
 };
 
