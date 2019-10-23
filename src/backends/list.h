@@ -7,8 +7,8 @@
 #ifndef MDBFS_BACKENDS_LIST_H
 #define MDBFS_BACKENDS_LIST_H
 
-#include "sqlite/mdbfs-backend.h"
-#include "berkeleydb/mdbfs-backend.h"
+#include "sqlite/mdbfs.h"
+#include "berkeleydb/mdbfs.h"
 
 /**
  * Private structure representing a backend and its related metadata.

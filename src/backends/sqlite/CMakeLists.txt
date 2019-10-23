@@ -4,9 +4,9 @@ find_package(SQLite3 3.28 REQUIRED)
 # Source code to be built
 set(
   SRCS
+  mdbfs.c
+  fuseops.c
   dbmgr.c
-  mdbfs-backend.c
-  sqlite-fuse.c
 )
 
 # Targets

@@ -1,5 +1,5 @@
 /**
- * @file mdbfs-backend.c
+ * @file mdbfs.c
  *
  * Implementation of public interfaces exposed by the Berkeley DB backend for
  * MDBFS.
@@ -10,7 +10,7 @@
 #include "utils/print.h"
 #include "backend.h"
 #include "dbmgr.h"
-#include "berkeleydb-fuse.h"
+#include "fuseops.h"
 
 /********** Non-Exported Public APIs **********/
 

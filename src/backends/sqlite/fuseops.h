@@ -1,5 +1,5 @@
 /**
- * @file sqlite-fuse.h
+ * @file fuseops.h
  *
  * Public interfaces of the MDBFS SQLite database backend.
  *
@@ -23,8 +23,8 @@
  * SQLite database management system.
  */
 
-#ifndef MDBFS_BACKENDS_SQLITE_SQLITE_FUSE_H
-#define MDBFS_BACKENDS_SQLITE_SQLITE_FUSE_H
+#ifndef MDBFS_BACKENDS_SQLITE_FUSEOPS_H
+#define MDBFS_BACKENDS_SQLITE_FUSEOPS_H
 
 #include "mdbfs-config.h"
 #include <fuse.h>

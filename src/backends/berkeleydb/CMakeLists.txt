@@ -1,12 +1,12 @@
 # Dependencies
-find_package(BerkeleyDB 18.1.32 REQUIRED)
+find_package(BerkeleyDB REQUIRED)
 
 # Source code to be built
 set(
   SRCS
+  mdbfs.c
+  fuseops.c
   dbmgr.c
-  mdbfs-backend.c
-  berkeleydb-fuse.c
 )
 
 # Targets

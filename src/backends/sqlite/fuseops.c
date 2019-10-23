@@ -1,5 +1,5 @@
 /**
- * @file sqlite-fuse.c
+ * @file fuseops.c
  *
  * Implementation of the MDBFS SQLite database backend.
  */
@@ -12,7 +12,7 @@
 #include "utils/path.h"
 #include "utils/print.h"
 #include "dbmgr.h"
-#include "sqlite-fuse.h"
+#include "fuseops.h"
 
 /********** Private APIs **********/
 

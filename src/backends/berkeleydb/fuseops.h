@@ -1,5 +1,5 @@
 /**
- * @file berkeleydb-fuse.h
+ * @file fuseops.h
  *
  * Public interfaces of the MDBFS Berkeley DB database backend.
  *
@@ -19,8 +19,8 @@
  * database.
  */
 
-#ifndef MDBFS_BACKENDS_BERKELEYDB_BERKELEYDB_FUSE_H
-#define MDBFS_BACKENDS_BERKELEYDB_BERKELEYDB_FUSE_H
+#ifndef MDBFS_BACKENDS_BERKELEYDB_FUSEOPS_H
+#define MDBFS_BACKENDS_BERKELEYDB_FUSEOPS_H
 
 #include "mdbfs-config.h"
 #include <fuse.h>

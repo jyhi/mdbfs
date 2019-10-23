@@ -9,7 +9,7 @@
 #include "utils/print.h"
 #include "backend.h"
 #include "dbmgr.h"
-#include "sqlite-fuse.h"
+#include "fuseops.h"
 
 /********** Non-Exported Public APIs **********/
 

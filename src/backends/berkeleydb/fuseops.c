@@ -1,5 +1,5 @@
 /**
- * @file berkeleydb-fuse.c
+ * @file fuseops.c
  *
  * Implementation of the MDBFS Berkeley DB database backend.
  */
@@ -12,7 +12,7 @@
 #include "utils/path.h"
 #include "utils/print.h"
 #include "dbmgr.h"
-#include "berkeleydb-fuse.h"
+#include "fuseops.h"
 
 /********** Private APIs **********/
 
