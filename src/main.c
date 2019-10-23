@@ -96,14 +96,17 @@ void show_version(void)
  */
 int main(int argc, char **argv)
 {
-  int r = 0;
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
   struct mdbfs_backend *backend = NULL;
+  int ret = 0; /* Value to be returned by the function */
+  int r = 0;   /* Value returned by other functions */
 
   /* Deal with command line arguments first */
   r = fuse_opt_parse(&args, &cmdline_options, cmdline_option_spec, NULL);
-  if (r != 0)
-    return 1;
+  if (r != 0) {
+    ret = 1;
+    goto quit;
+  }
 
   if (cmdline_options.show_help) {
     /* From FUSE example/hello.c: first print our own file-system specific help
@@ -119,40 +122,42 @@ int main(int argc, char **argv)
 
   if (cmdline_options.show_version) {
     show_version();
+    ret = 0;
     goto quit;
   }
 
   if (!cmdline_options.path) {
     mdbfs_info("database path is missing; use --db= to specify a database.");
-    r = 2;
+    ret = 2;
     goto quit;
   }
 
   if (!cmdline_options.type) {
     mdbfs_info("you must specify a database backend type.");
-    r = 1;
+    ret = 1;
     goto quit;
   }
 
   backend = mdbfs_backend_get(cmdline_options.type);
   if (!backend) {
     mdbfs_error("type \"%s\" does not match any supported database backend.", cmdline_options.type);
-    r = 1;
+    ret = 1;
     goto quit;
   }
 
   r = backend->init(argc, argv);
   if (!r) {
     mdbfs_error("backend \"%s\" encounters an error during initialization.", cmdline_options.type);
-    r = 1;
+    ret = 1;
     goto quit;
   }
 
+  /* System errors are returned in a negative form */
   r = backend->open(cmdline_options.path);
   if (r <= 0) {
     mdbfs_error("backend \"%s\" cannot open the database: %s", cmdline_options.type, r == 0 ? "internal error" : strerror(-r));
     backend->deinit();
-    r = -r;
+    ret = -r; /* Negate it back (to positive) for the operating system */
     goto quit;
   }
 
@@ -171,7 +176,7 @@ quit:
   mdbfs_free(cmdline_options.type);
   mdbfs_free(cmdline_options.path);
 
-  return r;
+  return ret;
 }
 
 /**
