@@ -41,7 +41,7 @@ You can specify some options in `cmake` to customize your build:
 
 - `-DBUILD_DOCUMENTATION`: Enable build target for API documentation using Doxygen in HTML, default to `OFF`
   - The documentation is not built automatically (not in `ALL` target). To build the API documentation, use `make docs` (or equivalences in other build systems).
-- `-DBUILD_SQLITE3`: Enable the SQLite3 database backend, default to `ON`
+- `-DBUILD_SQLITE`: Enable the SQLite3 database backend, default to `ON`
 - `-DBUILD_BERKELEY_DB`: Enable the Berkeley DB ("DB") database backend, default to `ON`
 
 The following options make parts of code be statically compiled into the binary:
