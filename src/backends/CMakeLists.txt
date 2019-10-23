@@ -1,13 +1,13 @@
-option(BUILD_SQLITE3 "Enable the SQLite3 database backend" ON)
+option(BUILD_SQLITE "Enable the SQLite3 database backend" ON)
 option(BUILD_BERKELEY_DB "Enable the Berkeley DB database backend" ON)
 
 # Target
 add_library(mdbfs-backends INTERFACE)
 
 # Backends
-if(BUILD_SQLITE3)
+if(BUILD_SQLITE)
   add_subdirectory(sqlite)
-  target_compile_definitions(mdbfs-backends INTERFACE BUILD_SQLITE3)
+  target_compile_definitions(mdbfs-backends INTERFACE BUILD_SQLITE)
   target_link_libraries(mdbfs-backends INTERFACE mdbfs-sqlite)
 endif()
 
