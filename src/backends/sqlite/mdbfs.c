@@ -16,7 +16,7 @@
 static const char const *mdbfs_backend_name = "sqlite";
 static const char const *mdbfs_backend_description = "backend for reading SQLite files";
 static const char const *mdbfs_backend_help = NULL;
-static const char const *mdbfs_backend_version = "0.1.0";
+static const char const *mdbfs_backend_version = "0.1.0\n  with SQLite " SQLITE_VERSION;
 
 static const char *mdbfs_backend_sqlite_get_name(void)
 {

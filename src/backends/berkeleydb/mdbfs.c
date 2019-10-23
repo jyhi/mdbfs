@@ -17,7 +17,7 @@
 static const char const *mdbfs_backend_name = "berkeleydb";
 static const char const *mdbfs_backend_description = "backend for reading Berkeley DB files";
 static const char const *mdbfs_backend_help = NULL;
-static const char const *mdbfs_backend_version = "0.1.0";
+static const char const *mdbfs_backend_version = "0.1.0\n  with " DB_VERSION_STRING;
 
 static const char *mdbfs_backend_berkeleydb_get_name(void)
 {
